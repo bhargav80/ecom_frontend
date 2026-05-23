@@ -7,7 +7,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import RegisterVendor from "./pages/RegisterVendor";
 import VendorLayout from "./pages/VendorLayout";
-import AdminLayout from "./pages/adminLayout";
+import AdminLayout from "./pages/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminVendors from "./pages/admin/Vendors";
 import AdminProducts from "./pages/admin/Products";
