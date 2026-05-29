@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 
 const CategoryPage = () => {
   const { name } = useParams();
+  const [searchParams] = useSearchParams();
+  const search = searchParams.get("search")?.trim() || "";
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
   const [filtered, setFiltered] = useState([]);
@@ -14,20 +16,35 @@ const CategoryPage = () => {
   const limit = 8; // Fits 2-column mobile or 4-column desktop layout grids perfectly
 
   const navigate = useNavigate();
+  const pageTitle = search ? `Search Results for "${search}"` : `${name} Collection`;
+  const pageLabel = search || name || "products";
+  const emptyMessage = search
+    ? `We couldn't find any products matching "${search}".`
+    : "We couldn't find anything matching this category at the moment.";
 
-  // Reset page when category changes
+  // Reset page when category or search changes
   useEffect(() => {
     setPage(1);
-  }, [name]);
+  }, [name, search]);
 
   useEffect(() => {
     setLoading(true);
     const fetchProducts = async () => {
       try {
-        // Appended page and limit query variables to the endpoint string
-        const res = await fetch(
-          `${API_URL}/products?category=${name}&page=${page}&limit=${limit}`,
-        );
+        const params = new URLSearchParams({
+          page: String(page),
+          limit: String(limit),
+        });
+
+        if (name) {
+          params.set("category", name);
+        }
+
+        if (search) {
+          params.set("search", search);
+        }
+
+        const res = await fetch(`${API_URL}/products?${params.toString()}`);
         const json = await res.json();
         
         const actualProducts = json.data || json.products || [];
@@ -43,8 +60,16 @@ const CategoryPage = () => {
       }
     };
 
-    if (name) fetchProducts();
-  }, [name, page]); // Re-runs fetch whenever user switches pages
+    if (name || search) {
+      fetchProducts();
+      return;
+    }
+
+    setProducts([]);
+    setFiltered([]);
+    setTotalPages(1);
+    setLoading(false);
+  }, [API_URL, name, page, search]);
 
   // Sorting side-effect
   useEffect(() => {
@@ -97,12 +122,12 @@ const CategoryPage = () => {
         <nav className="flex items-center gap-2 text-xs font-medium text-slate-400 mb-2">
           <span className="cursor-pointer hover:text-slate-600 transition" onClick={() => navigate('/')}>Home</span>
           <span>/</span>
-          <span className="text-slate-600 capitalize">{name}</span>
+          <span className="text-slate-600 capitalize">{pageLabel}</span>
         </nav>
 
         {/* Header Title */}
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 mb-6 capitalize">
-          {name} Collection
+          {pageTitle}
         </h1>
 
         {/* Clean, Modern Filter/Sort Bar */}
@@ -244,7 +269,7 @@ const CategoryPage = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
             </svg>
             <h3 className="text-sm font-semibold text-slate-900 mb-1">No products found</h3>
-            <p className="text-xs text-slate-500 mb-5">We couldn't find anything matching this category at the moment.</p>
+            <p className="text-xs text-slate-500 mb-5">{emptyMessage}</p>
             <button 
               onClick={() => navigate('/')} 
               className="inline-flex items-center justify-center px-4 py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition"

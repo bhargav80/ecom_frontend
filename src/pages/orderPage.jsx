@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Truck, XCircle, Package, ChevronLeft, ChevronRight, Calendar, Hash } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL ||"http://localhost:3000/api";
 
 const OrdersPage = () => {
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true); // Added for UI stability
   const [page, setPage] = useState(1);
@@ -48,7 +50,7 @@ const OrdersPage = () => {
   };
 
   const handleTrack = (orderId) => {
-    alert(`Tracking order reference: ${orderId}`);
+    navigate(`/orders/${orderId}`);
   };
 
   // Helper for Status Badge Styling
@@ -116,7 +118,10 @@ const OrdersPage = () => {
             <p className="text-sm text-slate-500 mt-1.5 max-w-xs mx-auto">
               Looks like you haven't made your choice yet. When you buy something, it will show up here.
             </p>
-            <button className="mt-6 inline-flex items-center justify-center px-5 py-2.5 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-xl shadow-sm transition">
+            <button
+              onClick={() => navigate("/")}
+              className="mt-6 inline-flex items-center justify-center px-5 py-2.5 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-xl shadow-sm transition"
+            >
               Start Exploring
             </button>
           </div>

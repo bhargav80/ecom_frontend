@@ -44,6 +44,7 @@ const ProductPage = () => {
   const [newReviewText, setNewReviewText] = useState("");
   const [submittingReview, setSubmittingReview] = useState(false);
   const [formError, setFormError] = useState("");
+  const [buyNowLoading, setBuyNowLoading] = useState(false);
 
   const images = product?.images?.map((img) =>
     typeof img === "string" ? img : img.url,
@@ -175,6 +176,34 @@ const handleDeleteReview = async (reviewId) => {
     });
   };
 
+  const handleBuyNow = () => {
+    requireAuth(async () => {
+      try {
+        setBuyNowLoading(true);
+        const result = await addToCart(product._id, 1);
+
+        if (!(result.message === "Added to cart" || result.success)) {
+          alert(result.message || "Unable to start checkout right now.");
+          return;
+        }
+
+        navigate("/checkout", {
+          state: {
+            buyNowProduct: {
+              id: product._id,
+              name: product.name,
+              price: product.price,
+              image: images[0],
+              rating: product.ratingsAverage,
+            },
+          },
+        });
+      } finally {
+        setBuyNowLoading(false);
+      }
+    });
+  };
+
   const requireAuth = (action) => {
     if (!user) {
       navigate("/login", { state: { from: `/product/${id}` } });
@@ -290,10 +319,11 @@ const handleDeleteReview = async (reviewId) => {
                   Add to Cart
                 </button>
                 <button
-                  onClick={() => requireAuth(() => alert("Proceeding to single checkout instantly!"))}
-                  className="flex-1 px-5 py-3 bg-slate-900 text-white text-sm rounded-xl font-bold hover:bg-slate-800 shadow-md shadow-slate-900/10 transition duration-150"
+                  onClick={handleBuyNow}
+                  disabled={buyNowLoading}
+                  className="flex-1 px-5 py-3 bg-slate-900 text-white text-sm rounded-xl font-bold hover:bg-slate-800 shadow-md shadow-slate-900/10 transition duration-150 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  Buy Now
+                  {buyNowLoading ? "Preparing Checkout..." : "Buy Now"}
                 </button>
               </div>
             </div>

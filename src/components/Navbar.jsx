@@ -1,29 +1,51 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // adjust path
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/cartContext";
+
 const Navbar = () => {
-  const { user, isAuthenticated, logout, isAdmin, isVendor } = useAuth();
+  const { isAuthenticated, logout, isAdmin, isVendor } = useAuth();
   const { cart } = useCart();
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+
+    if (searchTerm.trim()) {
+      navigate(`/products?search=${encodeURIComponent(searchTerm.trim())}`);
+    }
+  };
+
   return (
-    <nav className="flex flex-col md:flex-row items-center justify-between px-4 py-4 bg-white shadow-sm">
-      {/* Logo */}
-      <div className="text-xl font-bold text-blue-600 w-full md:w-auto text-center md:text-left">
-        ShopNow
+    <nav className="sticky top-0 z-50 flex flex-col items-center justify-between bg-white px-6 py-4 shadow-md transition-all md:flex-row">
+      <div className="w-full text-center text-2xl font-extrabold tracking-tight text-blue-600 md:w-auto md:text-left">
+        <Link to="/">ShopNow</Link>
       </div>
 
-      {/* Search */}
-      <div className="flex items-center bg-gray-100 px-4 py-2 rounded-full w-full md:w-1/3 mt-3 md:mt-0">
+      <form
+        onSubmit={handleSearch}
+        className="mt-4 flex w-full items-center rounded-full bg-gray-100 px-4 py-2 shadow-inner transition-all focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-500 md:mt-0 md:w-2/5"
+      >
         <input
           type="text"
-          placeholder="Search"
-          className="bg-transparent outline-none w-full"
+          placeholder="Search products..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full bg-transparent text-sm text-gray-700 outline-none placeholder:text-gray-400"
         />
-      </div>
+        <button
+          type="submit"
+          aria-label="Search products"
+          className="text-sm font-semibold text-gray-500 transition-colors hover:text-blue-600 focus:outline-none"
+        >
+          Search
+        </button>
+      </form>
 
-      {/* Nav Links */}
-      <div className="flex items-center gap-4 text-sm font-medium text-gray-700 mt-3 md:mt-0">
+       <div className="flex items-center gap-4 text-sm font-medium text-gray-700 mt-3 md:mt-0">
         <Link to="/">Home</Link>
         <Link to="/categories">Categories</Link>
         <Link to="#">Deals</Link>

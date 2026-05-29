@@ -28,6 +28,7 @@ import Orders from "./pages/vendor/Orders";
 import Analytics from "./pages/vendor/Analytics";
 import { Navigate } from "react-router-dom";
 import Profile from "./pages/Profile";
+import TrackOrderPage from "./pages/TrackOrderPage";
 // import Profile from "./pages/vendor/Profile";
 
 //import './App.css'
@@ -43,12 +44,14 @@ function App() {
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
         <Route path="/categories" element={<Categories />} />
+        <Route path="/products" element={<CategoryPage />} />
         <Route path="/category/:name" element={<CategoryPage />} />
         <Route path="/product/:id" element={<ProductPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage/>} />
           <Route path="orders" element={<OrdersPage/>} />
+          <Route path="orders/:orderId" element={<TrackOrderPage />} />
           <Route path="/payment-status" element={<PaymentStatus />} />
           <Route path="/profile" element={<Profile/>}/>
           
